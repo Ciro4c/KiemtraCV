@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Trình tạo CV chuyên nghiệp</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;600;700&family=Lora:wght@400;600;700&family=Inter:wght@400;600;700&display=swap">
+<style>
+:root{--bg:#f3f4f6;--pn:#fff;--tx:#111827;--mu:#6b7280;--bd:#e5e7eb;--br:#0f766e;--brt:#fff;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0f1115;--pn:#1a1d23;--tx:#e5e7eb;--mu:#9ca3af;--bd:#2d323b;--br:#2dd4bf;--brt:#042f2e}}
+:root[data-theme="dark"]{--bg:#0f1115;--pn:#1a1d23;--tx:#e5e7eb;--mu:#9ca3af;--bd:#2d323b;--br:#2dd4bf;--brt:#042f2e}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--tx);font:14px/1.5 "Be Vietnam Pro",Arial,sans-serif}
+.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;display:flex;flex-wrap:wrap;gap:8px;align-items:center;padding:10px 14px;background:var(--pn);border-bottom:1px solid var(--bd)}
+.top h1{font-size:16px;margin:0 auto 0 0}
+button,select,input,textarea{font:inherit;color:inherit}
+.btn{border:1px solid var(--bd);background:var(--pn);border-radius:8px;padding:6px 11px;cursor:pointer}
+.btn:hover{border-color:var(--br)}.btn.p{background:var(--br);color:var(--brt);border-color:var(--br);font-weight:600}
+.btn:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-visible{outline:2px solid var(--br);outline-offset:1px}
+.app{display:grid;grid-template-columns:minmax(340px,430px) 1fr;gap:0;align-items:start}
+.ui{border-right:1px solid var(--bd);background:var(--pn);min-height:calc(100vh - 56px)}
+.tabs{display:flex;border-bottom:1px solid var(--bd);position:sticky;top:calc(env(safe-area-inset-top,0px) + 55px);background:var(--pn);z-index:4}
+.tabs button{flex:1;padding:10px 4px;border:0;background:none;cursor:pointer;color:var(--mu);border-bottom:2px solid transparent}
+.tabs button.on{color:var(--tx);font-weight:600;border-color:var(--br)}
+.pane{padding:14px}
+.f{display:grid;gap:8px}.f2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+input,textarea,select{width:100%;padding:7px 9px;border:1px solid var(--bd);border-radius:7px;background:var(--bg)}
+textarea{resize:vertical;min-height:70px}
+.card{border:1px solid var(--bd);border-radius:10px;padding:10px;margin-bottom:10px}
+.hd{display:flex;gap:6px;align-items:center;margin-bottom:8px}.hd input{font-weight:600}
+.sm{padding:3px 8px;font-size:12px}
+.sub{border-top:1px dashed var(--bd);padding-top:8px;margin-top:8px}
+h3{font-size:13px;margin:14px 0 8px}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.opt{text-align:left;border:1px solid var(--bd);background:var(--bg);border-radius:9px;padding:9px;cursor:pointer}
+.opt.on{border-color:var(--br);box-shadow:0 0 0 1px var(--br)}.opt b{display:block}.opt small{color:var(--mu)}
+.sw{display:flex;flex-wrap:wrap;gap:7px}.sw button{width:28px;height:28px;border-radius:50%;border:2px solid var(--bd);cursor:pointer}.sw button.on{border-color:var(--tx)}
+.ck{display:flex;gap:8px;padding:6px 0;border-bottom:1px solid var(--bd)}
+.score{font-size:30px;font-weight:700}
+.stage{padding:16px;overflow:auto;height:calc(100vh - 56px);position:sticky;top:56px}
+#paper{width:794px;margin:0 auto;box-shadow:0 2px 14px rgba(0,0,0,.22);transform-origin:top center}
+.toast{position:fixed;left:50%;bottom:calc(16px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--tx);color:var(--bg);padding:9px 14px;border-radius:9px;max-width:90vw;z-index:9;display:none}
+/* CV */
+.cv{background:#fff;color:#1f2937;width:794px;min-height:1123px;padding:48px 52px;font:var(--fs)/var(--lh) var(--ff);-webkit-print-color-adjust:exact;print-color-adjust:exact}
+.cv h1{font-size:2.1em;margin:0;line-height:1.15;color:#111}
+.cv .ti{font-size:1.1em;color:var(--ac);margin-top:4px;font-weight:600}
+.cv .ct{margin-top:8px;font-size:.92em;color:#4b5563}
+.cv section{margin-top:calc(var(--gap)*1px)}
+.cv h2{font-size:1.05em;margin:0 0 6px;font-weight:700;color:#111}
+.cv p{margin:0}.cv ul{margin:4px 0 0;padding-left:18px}.cv li{margin:1px 0}
+.cv .it{margin-bottom:9px}.cv .r{display:flex;justify-content:space-between;gap:12px}
+.cv .r span{color:#6b7280;white-space:nowrap;font-size:.92em}.cv .o{color:#4b5563}
+.cv.classic header{text-align:center}.cv.classic h2{border-bottom:1.5px solid var(--ac);padding-bottom:3px}
+.cv.banner header{background:var(--ac);margin:-48px -52px 0;padding:38px 52px}
+.cv.banner h1,.cv.banner .ti,.cv.banner .ct{color:#fff}.cv.banner h2{color:var(--ac);border-bottom:1px solid #e5e7eb;padding-bottom:3px}
+.cv.minimal h2{color:var(--ac);border-left:3px solid var(--ac);padding-left:8px}
+.cv.sidebar{display:grid;grid-template-columns:230px 1fr;padding:0}
+.cv.sidebar aside{background:var(--ac);color:#fff;padding:44px 22px}
+.cv.sidebar aside h2,.cv.sidebar aside .o,.cv.sidebar aside .r span{color:#fff}
+.cv.sidebar aside h2{border-bottom:1px solid rgba(255,255,255,.45);padding-bottom:3px}
+.cv.sidebar aside .ct{color:#fff;display:grid;gap:3px;word-break:break-word}
+.cv.sidebar aside .r{display:block}
+.cv.sidebar main{padding:46px 36px}
+@media (max-width:860px){.app{grid-template-columns:1fr}.ui{min-height:0;border-right:0}.stage{height:auto;position:static}.tabs{top:calc(env(safe-area-inset-top,0px) + 55px)}}
+@media print{.top,.ui,.toast{display:none!important}body,.stage{background:#fff;padding:0!important;height:auto!important;overflow:visible!important;position:static!important}.app{display:block}#paper{zoom:1!important;box-shadow:none!important;margin:0}@page{size:A4;margin:0}}
+#paper{position:relative}
+#paper::after{content:"";position:absolute;inset:0;pointer-events:none;background:repeating-linear-gradient(to bottom,transparent 0 1122px,rgba(220,38,38,.55) 1122px 1124px)}
+.cv{--u:4px;padding:calc(var(--u)*12) calc(var(--u)*13);line-height:1.5}
+.cv h1{font-size:1.95em;line-height:1.15;letter-spacing:-.01em}
+.cv .ti{font-size:1.25em;line-height:1.3;margin-top:var(--u)}
+.cv .ct{font-size:.875em;margin-top:calc(var(--u)*3)}
+.cv h2{font-size:1.125em;line-height:1.3;margin:0 0 calc(var(--u)*2.5);break-after:avoid}
+.cv p{orphans:2;widows:2}.cv ul{margin:var(--u) 0 0;padding-left:1.2em}.cv .o{font-weight:600}
+.cv .it{display:grid;grid-template-columns:7.5em 1fr;column-gap:calc(var(--u)*4);margin-bottom:calc(var(--u)*3);break-inside:avoid}
+.cv .it .t{grid-column:1;grid-row:1;color:#6b7280;font-size:.875em;line-height:1.7}
+.cv .it .m{grid-column:2;grid-row:1;min-width:0}
+.cv header.hp{display:flex;justify-content:space-between;align-items:center;gap:calc(var(--u)*6)}
+.cv.classic header.hp{text-align:left}
+.cv .ph{width:105px;height:140px;object-fit:cover;border-radius:4px;flex:none}
+.cv.banner .ph{border:2px solid #fff}
+.cv.sidebar aside .it{display:flex;flex-direction:column}
+.cv.sidebar aside .t{order:-1;color:#fff;opacity:.85}
+.cv.sidebar aside .ph{display:block;width:150px;height:200px;margin:0 auto calc(var(--u)*5)}
+@media print{@page{size:A4;margin:12mm 0}.cv{padding-top:0;padding-bottom:0;min-height:0}.cv.banner header{margin-top:0}.cv.sidebar{min-height:0}#paper::after{display:none}}
+</style>
+</head>
+<body>
+<div class="top">
+  <h1>Trình tạo CV</h1>
+  <button class="btn p" data-x="pdf">Tải PDF</button>
+  <button class="btn" data-x="docx">Word (.docx)</button><button class="btn" data-x="html">HTML</button>
+  <button class="btn" data-x="txt" title="Bản văn bản thuần để dán vào ô nhập trên web tuyển dụng">Văn bản thuần</button>
+  <button class="btn" data-x="json">Lưu dữ liệu</button>
+  <label class="btn">Mở dữ liệu<input type="file" id="imp" accept=".json" hidden></label>
+</div>
+<div class="app">
+  <div class="ui">
+    <div class="tabs" id="tabs"></div>
+    <div class="pane" id="pane"></div>
+  </div>
+  <div class="stage" id="stage"><div id="paper"></div></div>
+</div>
+<div class="toast" id="toast" role="status"></div>
+<script>
+const FF={bevn:["Be Vietnam Pro","'Be Vietnam Pro',Arial,sans-serif"],lora:["Lora (có chân)","Lora,Georgia,serif"],inter:["Inter","Inter,Arial,sans-serif"],arial:["Arial (an toàn nhất)","Arial,Helvetica,sans-serif"]};
+const TPL={classic:["Cổ điển","Một cột, tiêu đề căn giữa",1],minimal:["Tối giản","Một cột, tiêu đề gạch bên",1],banner:["Hiện đại","Một cột, đầu trang màu",1],sidebar:["Hai cột","Cột bên màu, đẹp mắt, ATS kém hơn",0]};
+const COL=["#0f766e","#1d4ed8","#1e293b","#7c3aed","#be185d","#b45309","#15803d","#374151"];
+const IND={
+biz:{n:"Kinh doanh – Marketing",t:"banner",ac:"#1d4ed8",ff:"bevn",title:"Chuyên viên Marketing",sum:"4 năm kinh nghiệm xây dựng chiến dịch đa kênh cho ngành bán lẻ và thương mại điện tử. Thành thạo phân tích dữ liệu, tối ưu chi phí quảng cáo và dẫn dắt đội nội dung.",role:"Chuyên viên Marketing",org:"Công ty TNHH Thương mại ABC",time:"03/2022 – nay",d:"- Tăng doanh thu online 45% trong 12 tháng nhờ tối ưu phễu chuyển đổi\n- Giảm CPA 28% bằng thử nghiệm A/B trên 30 mẫu quảng cáo\n- Quản lý ngân sách quảng cáo 500 triệu đồng/tháng",sk:"Google Ads, Meta Ads, SEO, Google Analytics, Content Marketing, Excel, Quản lý dự án"},
+it:{n:"Công nghệ thông tin",t:"minimal",ac:"#0f766e",ff:"inter",title:"Backend Developer",sum:"Lập trình viên backend 3 năm kinh nghiệm xây dựng API và hệ thống xử lý dữ liệu quy mô lớn. Quan tâm đến chất lượng mã nguồn, kiểm thử tự động và hiệu năng.",role:"Backend Developer",org:"Công ty Phần mềm XYZ",time:"06/2022 – nay",d:"- Thiết kế 25 REST API phục vụ 200.000 người dùng hoạt động mỗi tháng\n- Giảm thời gian phản hồi trung bình từ 800ms xuống 250ms\n- Thiết lập CI/CD với Docker, rút ngắn thời gian triển khai 60%",sk:"Node.js, TypeScript, PostgreSQL, Redis, Docker, AWS, Git, Unit Test"},
+fin:{n:"Tài chính – Kế toán",t:"classic",ac:"#1e293b",ff:"lora",title:"Kế toán tổng hợp",sum:"Kế toán tổng hợp 5 năm kinh nghiệm tại doanh nghiệp sản xuất, nắm vững chuẩn mực VAS, báo cáo thuế và kiểm soát nội bộ. Cẩn thận, chính xác, đúng hạn.",role:"Kế toán tổng hợp",org:"Công ty Cổ phần Sản xuất DEF",time:"2020 – nay",d:"- Lập báo cáo tài chính tháng, quý, năm cho 3 pháp nhân\n- Rút ngắn thời gian khóa sổ từ 10 xuống 6 ngày\n- Phối hợp kiểm toán độc lập, không phát sinh điều chỉnh trọng yếu",sk:"MISA, SAP, Excel nâng cao, Báo cáo thuế, VAS, Phân tích tài chính"},
+med:{n:"Y tế – Dược",t:"minimal",ac:"#0e7490",ff:"bevn",title:"Điều dưỡng viên",sum:"Điều dưỡng viên 4 năm kinh nghiệm tại khoa Nội tổng hợp, chăm sóc bệnh nhân toàn diện, tuân thủ quy trình an toàn và giao tiếp tốt với người bệnh.",role:"Điều dưỡng viên",org:"Bệnh viện Đa khoa Khu vực",time:"2021 – nay",d:"- Chăm sóc 12–15 bệnh nhân mỗi ca theo phác đồ điều trị\n- Tham gia chương trình giảm nhiễm khuẩn bệnh viện, tỷ lệ tuân thủ rửa tay đạt 95%\n- Hướng dẫn thực hành cho 8 điều dưỡng mới",sk:"Chăm sóc bệnh nhân, Sơ cấp cứu, Quản lý hồ sơ bệnh án, Kiểm soát nhiễm khuẩn, Giao tiếp"},
+edu:{n:"Giáo dục – Đào tạo",t:"classic",ac:"#4338ca",ff:"lora",title:"Giáo viên Tiếng Anh",sum:"Giáo viên Tiếng Anh 6 năm kinh nghiệm giảng dạy trung học, xây dựng bài giảng theo năng lực và ứng dụng công nghệ trong lớp học.",role:"Giáo viên Tiếng Anh",org:"Trường THPT Nguyễn Du",time:"2019 – nay",d:"- Giảng dạy 4 lớp, 160 học sinh, điểm trung bình tăng 1,2 điểm sau một năm\n- Bồi dưỡng đội tuyển học sinh giỏi đạt 5 giải cấp tỉnh\n- Xây dựng ngân hàng 600 câu hỏi kiểm tra",sk:"Thiết kế bài giảng, Quản lý lớp học, IELTS, Google Classroom, Đánh giá năng lực"},
+des:{n:"Thiết kế – Sáng tạo",t:"sidebar",ac:"#be185d",ff:"bevn",title:"UI/UX Designer",sum:"Nhà thiết kế sản phẩm 4 năm kinh nghiệm, kết hợp nghiên cứu người dùng và thiết kế giao diện để cải thiện trải nghiệm ứng dụng di động.",role:"UI/UX Designer",org:"Studio Sáng Tạo",time:"2022 – nay",d:"- Thiết kế lại luồng thanh toán, tăng tỷ lệ hoàn tất đơn 18%\n- Xây dựng hệ thống thiết kế gồm 120 thành phần dùng chung\n- Thực hiện 20 buổi kiểm thử người dùng",sk:"Figma, Nghiên cứu người dùng, Prototype, Design System, Illustrator, HTML/CSS cơ bản"},
+eng:{n:"Kỹ thuật – Sản xuất",t:"banner",ac:"#374151",ff:"arial",title:"Kỹ sư Cơ khí",sum:"Kỹ sư cơ khí 5 năm kinh nghiệm trong dây chuyền sản xuất, cải tiến năng suất theo Lean và đảm bảo an toàn lao động.",role:"Kỹ sư Sản xuất",org:"Công ty TNHH Cơ khí GHI",time:"2020 – nay",d:"- Cải tiến quy trình lắp ráp, tăng năng suất 22%\n- Giảm tỷ lệ phế phẩm từ 4% xuống 1,5%\n- Quản lý đội 25 công nhân, 0 tai nạn lao động trong 3 năm",sk:"AutoCAD, SolidWorks, Lean, 5S, Six Sigma, Bảo trì thiết bị, Quản lý sản xuất"}
+};
+const mk=(id,title,type,on,v)=>({id,title,type,on,v});
+function fromInd(k){const i=IND[k];return{p:{name:"Nguyễn Văn An",title:i.title,email:"van.an@email.com",phone:"0901 234 567",addr:"Cần Thơ",link:"linkedin.com/in/vanan"},
+secs:[mk("sum","Tóm tắt","text",1,i.sum),mk("exp","Kinh nghiệm làm việc","items",1,[{a:i.role,b:i.org,c:i.time,d:i.d}]),mk("edu","Học vấn","items",1,[{a:"Cử nhân – Chuyên ngành phù hợp",b:"Đại học Cần Thơ",c:"2016 – 2020",d:""}]),mk("sk","Kỹ năng","tags",1,i.sk),mk("proj","Dự án","items",0,[]),mk("cert","Chứng chỉ","items",0,[])]}}
+let S=null;try{S=JSON.parse(localStorage.getItem("cv1")||"null")}catch(e){}
+if(!S||!S.p)S=Object.assign(fromInd("biz"),{});
+if(!S.d)S.d={tpl:"banner",ac:"#1d4ed8",ff:"bevn",fs:13.5,gap:16};
+const DEFS=[["sum","Tóm tắt","text"],["exp","Kinh nghiệm làm việc","items"],["edu","Học vấn","items"],["sk","Kỹ năng","tags"],["lang","Ngoại ngữ","tags"],["proj","Dự án","items"],["cert","Chứng chỉ","items"],["act","Hoạt động","items"],["award","Giải thưởng","items"],["hob","Sở thích","text"],["ref","Người tham chiếu","text"]];
+const SAMPLE='data:image/svg+xml;utf8,'+encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 320"><rect width="240" height="320" fill="#dbe4ee"/><circle cx="120" cy="120" r="52" fill="#9fb2c6"/><path d="M30 320c0-72 40-110 90-110s90 38 90 110z" fill="#9fb2c6"/></svg>');
+DEFS.forEach(([id,t,ty])=>{if(!S.secs.find(s=>s.id===id))S.secs.push(mk(id,t,ty,0,ty==="items"?[]:""))});
+if(!S.p.photo&&!S.p.nophoto)S.p.photo=SAMPLE;
+let tab="c";
+const $=s=>document.querySelector(s),esc=s=>String(s??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+function save(){try{localStorage.setItem("cv1",JSON.stringify(S))}catch(e){}}
+function toast(m){const t=$("#toast");t.textContent=m;t.style.display="block";clearTimeout(t._t);t._t=setTimeout(()=>t.style.display="none",4500)}
+const has=s=>s.type==="items"?s.v.some(i=>i.a||i.b||i.d):!!String(s.v).trim();
+function desc(d){if(!d)return"";const L=d.split("\n").filter(x=>x.trim());const li=L.filter(x=>/^\s*[-•*]/.test(x)),tx=L.filter(x=>!/^\s*[-•*]/.test(x));return(tx.length?`<p>${tx.map(esc).join("<br>")}</p>`:"")+(li.length?`<ul>${li.map(x=>`<li>${esc(x.replace(/^\s*[-•*]\s*/,""))}</li>`).join("")}</ul>`:"")}
+function secHTML(s){let b;if(s.type==="items")b=s.v.filter(i=>i.a||i.b||i.d).map(i=>`<div class="it"><div class="m"><b>${esc(i.a)}</b>${i.b?`<div class="o">${esc(i.b)}</div>`:""}${desc(i.d)}</div><span class="t">${esc(i.c)}</span></div>`).join("");else b=`<p>${esc(s.v).replace(/\n/g,"<br>")}</p>`;return`<section><h2>${esc(s.title)}</h2>${b}</section>`}
+function cvHTML(){const{p,secs,d}=S,vs=secs.filter(s=>s.on&&has(s));
+const ct=[p.email,p.phone,p.addr,p.link].filter(Boolean),img=p.photo?`<img class="ph" src="${p.photo}" alt="Ảnh chân dung">`:"";
+const style=`--ac:${d.ac};--ff:${FF[d.ff][1]};--fs:${d.fs}px;--lh:1.5;--gap:${d.gap}`;
+if(d.tpl==="sidebar"){const side=vs.filter(s=>["sk","lang","edu","cert","hob"].includes(s.id)),main=vs.filter(s=>!side.includes(s));
+return`<div class="cv sidebar" style="${style}"><aside>${img}<section style="margin-top:0"><h2>Liên hệ</h2><div class="ct">${ct.map(x=>`<span>${esc(x)}</span>`).join("")}</div></section>${side.map(secHTML).join("")}</aside><main><h1>${esc(p.name)}</h1><div class="ti">${esc(p.title)}</div>${main.map(secHTML).join("")}</main></div>`}
+return`<div class="cv ${d.tpl}" style="${style}"><header class="${img?"hp":""}"><div><h1>${esc(p.name)}</h1><div class="ti">${esc(p.title)}</div><div class="ct">${ct.map(esc).join(" | ")}</div></div>${img}</header>${vs.map(secHTML).join("")}</div>`}
+function draw(){$("#paper").innerHTML=cvHTML();fit();save()}
+function fit(){const w=$("#stage").clientWidth-32;$("#paper").style.zoom=Math.min(1,Math.max(.3,w/794))}
+addEventListener("resize",fit);
+/* editor */
+const TABS={c:"Nội dung",t:"Mẫu",d:"Thiết kế",a:"ATS",i:"Nhập CV"};
+function drawTabs(){$("#tabs").innerHTML=Object.entries(TABS).map(([k,v])=>`<button data-tab="${k}" class="${k===tab?"on":""}">${v}</button>`).join("")}
+const inp=(path,val,ph,tag)=>tag==="ta"?`<textarea data-k="${path}" placeholder="${ph}">${esc(val)}</textarea>`:`<input data-k="${path}" value="${esc(val)}" placeholder="${ph}">`;
+function paneC(){const p=S.p;let h=`<div class="f2">${inp("p.name",p.name,"Họ và tên")}${inp("p.title",p.title,"Vị trí ứng tuyển")}${inp("p.email",p.email,"Email")}${inp("p.phone",p.phone,"Số điện thoại")}${inp("p.addr",p.addr,"Địa chỉ / Tỉnh thành")}${inp("p.link",p.link,"LinkedIn / Portfolio")}</div><h3>Ảnh thẻ (không bắt buộc)</h3><div class="hd"><label class="btn sm">Chọn ảnh<input type="file" id="phf" accept="image/*" hidden></label>${p.photo?`<button class="btn sm" data-act="phx">Xóa ảnh</button>`:`<button class="btn sm" data-act="phs">Dùng ảnh mẫu</button>`}<small style="color:var(--mu)">Tự cắt tỉ lệ 3×4. Nên dùng ảnh nền sáng, nhìn thẳng.</small></div><h3>Sắp xếp theo cấp độ</h3><div class="hd"><button class="btn sm" data-act="ord" data-i="0">Mới ra trường</button><button class="btn sm" data-act="ord" data-i="1">Đã có kinh nghiệm</button></div><h3>Ngôn ngữ tên mục</h3><div class="hd"><button class="btn sm" data-act="vi">Tiếng Việt</button><button class="btn sm" data-act="en">Tiếng Anh (công ty nước ngoài)</button></div><h3>Các mục trong CV</h3><p style="color:var(--mu);margin:0 0 8px">Mỗi vị trí nên có 3–6 ý, mỗi ý theo mẫu “làm gì, kết quả gì, con số nào”. Nhà tuyển dụng chỉ quét CV vài giây nên hãy đặt thông tin mạnh nhất lên đầu.</p>`;
+S.secs.forEach((s,i)=>{h+=`<div class="card"><div class="hd"><input type="checkbox" style="width:auto" data-k="s.${i}.on" ${s.on?"checked":""} title="Hiện mục này" aria-label="Hiện mục này">${inp(`s.${i}.title`,s.title,"Tên mục")}<button class="btn sm" data-act="up" data-i="${i}" title="Lên">↑</button><button class="btn sm" data-act="dn" data-i="${i}" title="Xuống">↓</button></div>`;
+if(s.type==="items"){s.v.forEach((it,j)=>{h+=`<div class="${j?"sub":""} f"><div class="f2">${inp(`s.${i}.v.${j}.a`,it.a,"Chức danh / Bằng cấp")}${inp(`s.${i}.v.${j}.b`,it.b,"Công ty / Trường")}</div>${inp(`s.${i}.v.${j}.c`,it.c,"Thời gian, ví dụ 2021 – nay")}${inp(`s.${i}.v.${j}.d`,it.d,"Mỗi dòng bắt đầu bằng “-” là một gạch đầu dòng. Nêu thành tích có số liệu.","ta")}<div><button class="btn sm" data-act="rm" data-i="${i}" data-j="${j}">Xóa mục này</button></div></div>`});h+=`<div class="sub"><button class="btn sm" data-act="add" data-i="${i}">+ Thêm mục</button></div>`}
+else h+=inp(`s.${i}.v`,s.v,s.type==="tags"?"Các kỹ năng, cách nhau bằng dấu phẩy":"Giới thiệu ngắn 2–4 câu","ta");h+=`</div>`});
+return h+`<button class="btn" data-act="sec">+ Thêm mục tự đặt (ví dụ: Giải thưởng)</button>`}
+function paneT(){let h=`<h3>Mẫu phổ thông</h3><div class="grid">${Object.entries(TPL).map(([k,v])=>`<button class="opt ${S.d.tpl===k?"on":""}" data-tpl="${k}"><b>${v[0]}</b><small>${v[1]}</small></button>`).join("")}</div><h3>Thiết kế theo ngành</h3><div class="grid">${Object.entries(IND).map(([k,v])=>`<button class="opt" data-ind="${k}"><b>${v.n}</b><small>Mẫu ${TPL[v.t][0]}, bảng màu và phông chữ phù hợp</small></button>`).join("")}</div><h3>Nội dung mẫu</h3><p style="color:var(--mu);margin:0 0 8px">Bấm một ngành ở trên để áp dụng thiết kế, sau đó nạp nội dung mẫu của ngành đó nếu muốn viết lại từ đầu. Nội dung hiện tại sẽ bị thay.</p><div class="grid">${Object.entries(IND).map(([k,v])=>`<button class="btn sm" data-fill="${k}">Nạp: ${v.n}</button>`).join("")}</div>`;return h}
+function paneD(){const d=S.d;return`<h3>Màu chủ đạo</h3><div class="sw">${COL.map(c=>`<button style="background:${c}" class="${d.ac===c?"on":""}" data-col="${c}" aria-label="Màu ${c}"></button>`).join("")}<input type="color" value="${d.ac}" data-d="ac" style="width:40px;height:30px;padding:1px" aria-label="Chọn màu khác"></div><h3>Phông chữ</h3><select data-d="ff">${Object.entries(FF).map(([k,v])=>`<option value="${k}" ${d.ff===k?"selected":""}>${v[0]}</option>`).join("")}</select><h3>Cỡ chữ: <span id="vf">${d.fs}</span>px</h3><input type="range" min="11" max="16" step=".5" value="${d.fs}" data-d="fs"><h3>Khoảng cách giữa các mục: <span id="vg">${d.gap}</span>px</h3><input type="range" min="6" max="30" value="${d.gap}" data-d="gap"><h3>Mẫu</h3><div class="grid">${Object.entries(TPL).map(([k,v])=>`<button class="opt ${d.tpl===k?"on":""}" data-tpl="${k}"><b>${v[0]}</b></button>`).join("")}</div>`}
+function paneA(){const{p,secs,d}=S,all=secs.filter(s=>s.on&&has(s)),g=id=>secs.find(s=>s.id===id);
+const nums=(g("exp").v.map(i=>i.d).join(" ").match(/\d/g)||[]).length,bul=g("exp").v.map(i=>i.d).join("\n").split("\n").filter(x=>/^\s*[-•*]/.test(x)).length;
+const C=[[TPL[d.tpl][2],"Bố cục một cột, phần mềm đọc đúng thứ tự","Hai cột có thể làm ATS đọc lẫn nội dung, nên chọn mẫu một cột"],[!!p.name.trim(),"Có họ tên","Điền họ tên"],[/\S+@\S+\.\S+/.test(p.email),"Email hợp lệ","Thêm email hợp lệ"],[p.phone.replace(/\D/g,"").length>=9,"Có số điện thoại","Thêm số điện thoại"],[String(g("sum").v).length>=100&&g("sum").on,"Tóm tắt từ 100 ký tự","Viết phần tóm tắt 2–4 câu"],[g("exp").on&&has(g("exp")),"Có mục kinh nghiệm","Bật và điền mục kinh nghiệm"],[g("edu").on&&has(g("edu")),"Có mục học vấn","Bật và điền mục học vấn"],[bul>=3,"Có ít nhất 3 gạch đầu dòng thành tích","Dùng dòng bắt đầu bằng “-” để liệt kê thành tích"],[nums>=3,"Thành tích có số liệu","Thêm con số (%, số lượng, thời gian)"],[g("sk").on&&String(g("sk").v).split(",").length>=5,"Có từ 5 kỹ năng trở lên","Liệt kê thêm kỹ năng, cách nhau bằng dấu phẩy"],[d.fs>=12,"Cỡ chữ đủ đọc","Tăng cỡ chữ lên 12px trở lên"]];
+const sc=Math.round(C.filter(c=>c[0]).length/C.length*100);
+return`<div class="score" style="color:${sc>=80?"#15803d":sc>=60?"#b45309":"#dc2626"}">${sc}/100</div><p style="color:var(--mu);margin:0 0 8px">CV được tạo bằng văn bản thật (không dùng ảnh), tiêu đề chuẩn và không có bảng hay biểu tượng, nên các hệ thống ATS đọc được. Điểm này chỉ là ước lượng của riêng ứng dụng.</p>${C.map(c=>`<div class="ck"><span>${c[0]?"✅":"⚠️"}</span><span>${c[0]?c[1]:c[2]}</span></div>`).join("")}`}
+let IMPTXT="",IMPST="",IMPREV="";
+const H={sum:/^(tóm tắt|mục tiêu|giới thiệu|summary|objective|profile|professional summary)/i,exp:/^(kinh nghiệm|work experience|experience|employment)/i,edu:/^(học vấn|education)/i,sk:/^(kỹ năng|skills)/i,lang:/^(ngoại ngữ|languages)/i,proj:/^(dự án|projects)/i,cert:/^(chứng chỉ|certifications)/i,act:/^(hoạt động|activities|volunteer)/i,award:/^(giải thưởng|thành tích|awards)/i,hob:/^(sở thích|interests)/i,ref:/^(người tham chiếu|references)/i};
+function heur(t){const L=t.split("\n").map(x=>x.trim()).filter(Boolean),m=r=>(t.match(r)||[""])[0].trim(),B={};let cur=null;L.slice(1).forEach(x=>{const k=x.length<45&&Object.keys(H).find(k=>H[k].test(x));if(k){cur=k;B[k]=[]}else if(cur)B[cur].push(x)});return{p:{name:L[0]||"",title:L[1]&&L[1].length<60&&!/@|\d{6}/.test(L[1])?L[1]:"",email:m(/[\w.+-]+@[\w-]+\.[\w.]+/),phone:m(/(\+?84|0)[\d .-]{8,12}\d/),addr:"",link:m(/(linkedin\.com|github\.com)\/[\w\/-]+/)},B}}
+function fromHeur(h){const o={p:h.p},it=ls=>[{a:ls[0]||"",b:"",c:(ls.join(" ").match(/(\d{2}\/)?(19|20)\d\d\s*[–-]\s*((19|20)\d\d|nay|hiện tại|present)/i)||[""])[0],d:ls.slice(1).map(x=>"- "+x.replace(/^[-•*●]\s*/,"")).join("\n")}];for(const k in h.B){const ls=h.B[k];o[k]=["exp","edu","proj","cert","act","award"].includes(k)?it(ls):(k==="sk"||k==="lang")?ls.join(", "):ls.join(" ")}return o}
+function applyImp(o){S.p=Object.assign({},S.p,o.p||{});S.secs=DEFS.map(([id,t,ty])=>{let v=o[id];v=ty==="items"?(Array.isArray(v)?v.map(i=>({a:i.a||"",b:i.b||"",c:i.c||"",d:i.d||""})):[]):(typeof v==="string"?v:"");const s=mk(id,t,ty,1,v);s.on=has(s)?1:0;return s})}
+function reviewLocal(t){const w=(t.match(/\S+/g)||[]).length,r=[`Độ dài khoảng ${w} từ (khoảng ${Math.max(1,Math.round(w/500))} trang, nên 1–2 trang)`];if(!/[\w.+-]+@[\w-]+\.[\w.]+/.test(t))r.push("Không thấy email");if(!/(\+?84|0)[\d .-]{8,12}\d/.test(t))r.push("Không thấy số điện thoại");if(/[•●■►★✓]/.test(t))r.push("Có ký hiệu đặc biệt dễ bị ATS đọc sai");if(t.split("\n").filter(x=>/\d/.test(x)&&x.length>30).length<3)r.push("Ít dòng thành tích có số liệu");return r}
+const IMPP='Đọc CV dưới đây và trả về DUY NHẤT một đối tượng JSON, không giải thích. Cấu trúc: {"p":{"name","title","email","phone","addr","link"},"sum":"","exp":[{"a":"chức danh","b":"công ty","c":"thời gian","d":"- ý 1 - ý 2 (mỗi ý một dòng)"}],"edu":[{"a","b","c","d"}],"sk":"kỹ năng cách nhau bằng dấu phẩy","lang":"ngoại ngữ","proj":[],"cert":[],"act":[],"award":[],"hob":"","ref":"","review":["tối đa 8 nhận xét ngắn bằng tiếng Việt về điểm yếu của CV gốc: thiếu số liệu, thiếu mục, quá dài, mơ hồ"]}. Quy tắc: chỉ dùng thông tin có trong CV, tuyệt đối không bịa; xếp mới nhất lên trước; mỗi ý thành tích một dòng bắt đầu bằng "- "; thời gian viết thống nhất dạng 03/2022 – nay; giữ nguyên ngôn ngữ gốc. CV:\n';
+async function doImport(){const t=IMPTXT.trim();if(t.length<80){IMPST="Nội dung quá ngắn, hãy chọn file hoặc dán toàn bộ CV.";drawPane();return}IMPST="Đang phân tích, vui lòng chờ...";IMPREV="";drawPane();let o=null,ai=false;try{const sm=window.claude&&await claude.use("sample");if(sm){o=await sm.json(IMPP+t);ai=!!(o&&o.p)}}catch(e){o=null}if(!ai)o=fromHeur(heur(t));applyImp(o);const rv=reviewLocal(t).concat(ai&&Array.isArray(o.review)?o.review.slice(0,8):[]);IMPREV=`<h3>Nhận xét về CV gốc</h3><ul>${rv.map(x=>`<li>${esc(x)}</li>`).join("")}</ul><p style="color:var(--mu)">${ai?"Claude đã đọc và sắp xếp lại nội dung.":"Chưa dùng được Claude nên chỉ tách mục theo tiêu đề, cần kiểm tra và sửa tay."} Hãy đối chiếu từng mục với CV gốc rồi mở tab ATS để xem điểm và chỗ cần chỉnh.</p>`;IMPST="Đã chuyển vào CV chuẩn.";draw();drawPane()}
+function paneI(){return`<p style="margin:0 0 8px">Tải CV bạn đang có (.docx, .pdf có chữ chọn được, .txt) hoặc dán nội dung. Ứng dụng đọc, đưa vào mẫu chuẩn và chấm điểm. Nội dung hiện có trong ứng dụng sẽ bị thay.</p><label class="btn">Chọn file CV<input type="file" id="impcv" accept=".docx,.pdf,.txt" hidden></label><h3>Hoặc dán nội dung CV</h3><textarea id="cvtxt" style="min-height:160px" placeholder="Dán toàn bộ văn bản CV vào đây">${esc(IMPTXT)}</textarea><div style="margin:8px 0"><button class="btn p" data-act="imp">Phân tích và chuyển thành CV chuẩn</button></div><div style="color:var(--mu)">${esc(IMPST)}</div>${IMPREV}`}
+const lj=u=>new Promise((r,j)=>{const s=document.createElement("script");s.src=u;s.onload=r;s.onerror=j;document.head.appendChild(s)});
+async function pdfText(buf){const V="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/";if(!window.pdfjsLib){await lj(V+"pdf.min.js");pdfjsLib.GlobalWorkerOptions.workerSrc=V+"pdf.worker.min.js"}const d=await pdfjsLib.getDocument({data:buf}).promise;let o="";for(let i=1;i<=d.numPages;i++){const c=await(await d.getPage(i)).getTextContent();let y=null;c.items.forEach(t=>{if(y!==null&&Math.abs(t.transform[5]-y)>3)o+="\n";o+=t.str;y=t.transform[5]});o+="\n"}return o}
+document.addEventListener("input",e=>{if(e.target.id==="cvtxt")IMPTXT=e.target.value});
+document.addEventListener("change",async e=>{if(e.target.id!=="impcv")return;const f=e.target.files[0];if(!f)return;IMPST="Đang đọc file...";drawPane();try{const n=f.name.toLowerCase();let t;if(n.endsWith(".txt"))t=await f.text();else if(n.endsWith(".docx")){const z=await JSZip.loadAsync(await f.arrayBuffer());t=(await z.file("word/document.xml").async("string")).replace(/<\/w:p>/g,"\n").replace(/<w:tab\/>/g," ").replace(/<[^>]+>/g,"").replace(/&amp;/g,"&").replace(/&lt;/g,"<").replace(/&gt;/g,">")}else if(n.endsWith(".pdf"))t=await pdfText(await f.arrayBuffer());else throw 0;IMPTXT=t.trim();IMPST=IMPTXT.length>=80?"Đã đọc "+IMPTXT.length+" ký tự. Bấm phân tích để chuyển sang CV chuẩn.":"Đọc được rất ít chữ, có thể đây là PDF dạng ảnh quét. Hãy dán văn bản."}catch(x){IMPST="Không đọc được file này. Hãy dán nội dung CV vào ô bên dưới."}drawPane()});
+let JD="",JDR=null;
+const slug=s=>s.normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/đ/gi,"d").trim().replace(/[^A-Za-z0-9]+/g,"_");
+async function docxBlob(){const{p,secs,d}=S,X=s=>String(s??"").replace(/[&<>]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;"}[c])),col=d.ac.slice(1),z=Math.round(d.fs*1.5);
+const R=(t,o={})=>`<w:r><w:rPr><w:rFonts w:ascii="Arial" w:hAnsi="Arial" w:cs="Arial"/>${o.b?"<w:b/>":""}${o.c?`<w:color w:val="${o.c}"/>`:""}<w:sz w:val="${o.s||z}"/></w:rPr><w:t xml:space="preserve">${X(t)}</w:t></w:r>`;
+const P=(r,o={})=>`<w:p><w:pPr>${o.bd?`<w:pBdr><w:bottom w:val="single" w:sz="6" w:space="1" w:color="${col}"/></w:pBdr>`:""}<w:spacing w:before="${o.bf||0}" w:after="${o.af??60}"/>${o.ind?'<w:ind w:left="360" w:hanging="220"/>':""}</w:pPr>${r}</w:p>`;
+let b=P(R(p.name,{b:1,s:z*2+8}),{af:20})+P(R(p.title,{b:1,c:col,s:z+4}),{af:40})+P(R([p.email,p.phone,p.addr,p.link].filter(Boolean).join(" | "),{s:z-2}),{af:120});
+secs.filter(s=>s.on&&has(s)).forEach(s=>{b+=P(R(s.title,{b:1,s:z+3}),{bd:1,bf:200,af:80});
+if(s.type==="items")s.v.filter(i=>i.a||i.b).forEach(i=>{b+=P(R(i.a,{b:1})+(i.b?R(" | "+i.b):"")+(i.c?R(" | "+i.c,{c:"666666"}):""),{af:30});i.d.split("\n").filter(x=>x.trim()).forEach(x=>{b+=/^\s*[-•*]/.test(x)?P(R("•")+"<w:r><w:tab/></w:r>"+R(x.replace(/^\s*[-•*]\s*/,"")),{ind:1,af:20}):P(R(x),{af:20})});b+=P("",{af:60})});else s.v.split("\n").forEach(x=>b+=P(R(x),{af:40}))});
+const Z=new JSZip(),H='<?xml version="1.0" encoding="UTF-8" standalone="yes"?>';
+Z.file("[Content_Types].xml",H+'<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="xml" ContentType="application/xml"/><Override PartName="/word/document.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.document.main+xml"/></Types>');
+Z.file("_rels/.rels",H+'<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="word/document.xml"/></Relationships>');
+Z.file("word/document.xml",H+'<w:document xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main"><w:body>'+b+'<w:sectPr><w:pgSz w:w="11906" w:h="16838"/><w:pgMar w:top="850" w:right="850" w:bottom="850" w:left="850" w:header="0" w:footer="0" w:gutter="0"/></w:sectPr></w:body></w:document>');
+return Z.generateAsync({type:"blob"})}
+const STD=["tóm tắt","mục tiêu nghề nghiệp","kinh nghiệm làm việc","học vấn","kỹ năng","dự án","chứng chỉ","giải thưởng","hoạt động","summary","professional summary","work experience","experience","education","skills","projects","certifications","awards","ngoại ngữ","người tham chiếu","sở thích","thành tích","languages","references","interests","activities"];
+const VERB=/^(xây dựng|tăng|giảm|quản lý|thiết kế|triển khai|tối ưu|phát triển|dẫn dắt|lập|thực hiện|phối hợp|hướng dẫn|cải tiến|đạt|chăm sóc|giảng dạy|bồi dưỡng|thiết lập|rút ngắn|vận hành|đào tạo|xử lý|nghiên cứu|phân tích|tổ chức|kiểm soát|tham gia|duy trì|đề xuất|chủ trì)/i;
+const STOP=new Set("và của các là có cho với trong một những được để này khi từ như đã sẽ cũng tại về theo không người công việc ứng viên yêu cầu quyền lợi the and or of to in for with an".split(" "));
+function pages(){const q=$("#paper"),z=q.style.zoom;q.style.zoom=1;const h=q.offsetHeight;q.style.zoom=z;return Math.max(1,Math.ceil(h/1123))}
+function jdMatch(){const cv=txt().toLowerCase(),w=JD.toLowerCase().match(/[\p{L}\p{N}+#.]+/gu)||[],f={};w.forEach((x,i)=>{if(/^[a-z0-9+#.]{3,}$/.test(x)&&!STOP.has(x))f[x]=(f[x]||0)+2;const y=w[i+1];if(y&&!STOP.has(x)&&!STOP.has(y)&&x.length>1&&y.length>1){const b=x+" "+y;f[b]=(f[b]||0)+1}});const t=Object.entries(f).filter(([k,v])=>v>=2).sort((a,b)=>b[1]-a[1]).slice(0,25).map(x=>x[0]);const ok=t.filter(k=>cv.includes(k));return{t,ok,miss:t.filter(k=>!ok.includes(k))}}
+document.addEventListener("input",e=>{if(e.target.id==="jd")JD=e.target.value});
+document.addEventListener("change",e=>{if(e.target.id!=="phf")return;const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=()=>{const im=new Image();im.onload=()=>{const W=240,H=320,c=document.createElement("canvas");c.width=W;c.height=H;const k=Math.max(W/im.width,H/im.height),w=im.width*k,h=im.height*k,x=c.getContext("2d");x.fillStyle="#fff";x.fillRect(0,0,W,H);x.drawImage(im,(W-w)/2,(H-h)/2,w,h);S.p.photo=c.toDataURL("image/jpeg",.85);draw();drawPane()};im.src=r.result};r.readAsDataURL(f)});
+function paneA2(){const{p,secs,d}=S,g=id=>secs.find(s=>s.id===id),vis=secs.filter(s=>s.on&&has(s));
+const B=[];["exp","proj"].forEach(id=>g(id)&&g(id).on&&g(id).v.forEach(i=>{const L=i.d.split("\n").filter(x=>/^\s*[-•*]/.test(x)).map(x=>x.replace(/^\s*[-•*]\s*/,""));L.forEach(t=>B.push({t,n:L.length}))}));
+const n=B.length,pc=x=>n?B.filter(x).length/n:0,pg=pages(),all=txt();
+const yrs=["exp","edu"].every(id=>!g(id).on||g(id).v.filter(i=>i.a||i.b).every(i=>/(19|20)\d\d/.test(i.c)));
+const C=[[TPL[d.tpl][2],20,"Bố cục một cột","Mẫu hai cột dễ làm ATS đọc xáo trộn thứ tự. Khi nộp online hãy dùng mẫu một cột"],
+[vis.every(s=>STD.includes(s.title.trim().toLowerCase())),10,"Tên mục chuẩn","Đổi tên mục về dạng quen thuộc (Kinh nghiệm làm việc, Học vấn, Kỹ năng...) vì ATS nhận mục theo tên"],
+[!!p.name.trim()&&/\S+@\S+\.\S+/.test(p.email)&&p.phone.replace(/\D/g,"").length>=9,10,"Đủ tên, email, số điện thoại","Điền đủ họ tên, email hợp lệ và số điện thoại"],
+[g("sum").on&&g("sum").v.length>=150&&g("sum").v.length<=500,8,"Tóm tắt 150–500 ký tự","Viết 2–4 câu: số năm kinh nghiệm, thế mạnh, kết quả nổi bật"],
+[g("exp").on&&has(g("exp"))&&g("edu").on&&has(g("edu")),10,"Có kinh nghiệm và học vấn","Bật và điền cả hai mục"],
+[yrs,6,"Mốc thời gian có năm","Ghi dạng 03/2022 – nay hoặc 2020 – 2022 cho từng vị trí"],
+[n>=3&&pc(b=>/\d/.test(b.t))>=.6,10,"Từ 60% gạch đầu dòng có số liệu","Thêm con số vào thành tích (%, số lượng, tiền, thời gian)"],
+[n>=3&&pc(b=>VERB.test(b.t))>=.7,6,"Gạch đầu dòng mở bằng động từ hành động","Mở đầu bằng động từ: Xây dựng, Tăng, Giảm, Tối ưu, Quản lý..."],
+[n>=3&&!B.some(b=>b.t.length>170||b.n>6),4,"Mỗi ý ≤ 170 ký tự, tối đa 6 ý mỗi vị trí","Rút gọn: mỗi ý tối đa 2 dòng, giữ 3–6 ý mỗi vị trí"],
+[pg<=2,8,"CV tối đa 2 trang (hiện "+pg+")","Rút gọn nội dung; ưu tiên 1 trang nếu dưới 10 năm kinh nghiệm (hiện "+pg+" trang)"],
+[!/[\u{1F300}-\u{1FAFF}\u2600-\u27BF★●◆►✓]/u.test(all),4,"Không có biểu tượng đặc biệt","Xóa emoji và ký hiệu lạ vì ATS có thể đọc thành ký tự lỗi"],
+[d.fs>=12,4,"Cỡ chữ từ 12px","Tăng cỡ chữ lên 12px trở lên"],
+[g("exp").v.map(i=>+((i.c.match(/(19|20)\d\d/)||[0])[0])).filter(Boolean).every((y,i,a)=>!i||a[i-1]>=y),6,"Kinh nghiệm xếp mới nhất lên trước","Sắp xếp theo thời gian đảo ngược: vị trí gần đây nhất ở trên cùng"],
+[["exp","edu"].every(id=>new Set(g(id).v.filter(i=>i.c).map(i=>i.c.replace(/nay|hiện tại|present|now/gi,"X").replace(/\d/g,"9"))).size<=1),5,"Định dạng ngày thống nhất","Dùng một kiểu ghi ngày trong cùng một mục, ví dụ luôn 03/2022 – nay"],
+[!/love|baby|cute|xinh|\d{5,}/i.test(p.email),3,"Email trông chuyên nghiệp","Dùng email dạng hoten@... thay cho biệt danh hoặc dãy số dài"],
+[p.photo!==SAMPLE,3,"Đã thay ảnh mẫu","Thay ảnh mẫu bằng ảnh thẻ thật (nền sáng, nhìn thẳng) hoặc xóa ảnh"],
+[(h=>h.p.email===p.email.trim()&&h.p.phone.replace(/\D/g,"")===p.phone.replace(/\D/g,"")&&Object.keys(h.B).length>=3)(heur(all)),8,"ATS thử đọc lại được email, số điện thoại và các mục","Bản văn bản thuần chưa tách đúng thông tin, hãy kiểm tra tên mục và dòng liên hệ"]];
+const sc=Math.round(C.reduce((a,c)=>a+(c[0]?c[1]:0),0)/C.reduce((a,c)=>a+c[1],0)*100),R=JDR;
+return`<div class="score" style="color:${sc>=85?"#15803d":sc>=65?"#b45309":"#dc2626"}">${sc}/100</div><p style="color:var(--mu);margin:0 0 8px">${n} gạch đầu dòng, ${Math.round(pc(b=>/\d/.test(b.t))*100)}% có số liệu. Điểm do ứng dụng ước lượng từ các quy tắc ATS phổ biến, không phải kết quả của một hệ thống cụ thể.</p>${[...C].sort((a,b)=>a[0]-b[0]).map(c=>`<div class="ck"><span>${c[0]?"✅":"⚠️"}</span><span>${c[0]?c[2]:c[3]}</span></div>`).join("")}<p style="color:var(--mu)">Ảnh thẻ: ATS bỏ qua ảnh, còn họ tên và liên hệ vẫn là văn bản nên không ảnh hưởng. Nhiều nhà tuyển dụng Việt Nam mong có ảnh, công ty nước ngoài thường không cần.</p><h3>ATS nhìn thấy gì</h3><p style="color:var(--mu);margin:0 0 8px">Đây là văn bản thuần mà hệ thống thường trích ra từ CV. Nếu thứ tự lộn xộn hoặc mất thông tin, CV có vấn đề. Bản này cũng là nội dung nút “Văn bản thuần” tải về, dùng để dán vào ô nhập trên web tuyển dụng.</p><pre style="white-space:pre-wrap;max-height:240px;overflow:auto;background:var(--bg);padding:8px;border-radius:7px;font:12px/1.5 monospace;margin:0">${esc(all)}</pre><h3>Nhà tuyển dụng đọc CV thế nào</h3><p style="color:var(--mu);margin:0 0 8px">Nghiên cứu theo dõi mắt của The Ladders ghi nhận lần quét đầu chỉ khoảng 7,4 giây, nên tên, chức danh, công ty, thời gian và học vấn phải nhìn thấy ngay. Phần lớn ATS không tự động loại hồ sơ mà trích xuất thông tin để nhà tuyển dụng tìm lọc theo từ khóa, nên CV cần đọc đúng và có đúng từ khóa của vị trí. Hãy ghi cả tên đầy đủ lẫn viết tắt, ví dụ Search Engine Optimization (SEO). Tên file tải về đã được đặt dạng HoTen_CV, không dấu.</p><h3>So khớp với tin tuyển dụng</h3><textarea id="jd" placeholder="Dán mô tả công việc vào đây" style="min-height:110px">${esc(JD)}</textarea><div style="margin:8px 0"><button class="btn sm" data-act="jd">Phân tích từ khóa</button></div>${R?(R.t.length?`<div class="score">${Math.round(R.ok.length/R.t.length*100)}%</div><p style="margin:0">${R.ok.length}/${R.t.length} từ khóa nổi bật của tin tuyển dụng đã có trong CV.</p>${R.miss.length?`<p style="color:var(--mu)">Còn thiếu: ${R.miss.map(esc).join(", ")}. Chỉ thêm những từ đúng với kinh nghiệm thật của bạn.</p>`:""}`:"<p>Chưa đủ dữ liệu, hãy dán mô tả dài hơn.</p>"):""}`}
+function drawPane(){drawTabs();$("#pane").innerHTML={c:paneC,t:paneT,d:paneD,a:paneA2,i:paneI}[tab]()}
+function setPath(path,val){const k=path.split(".");let o=k[0]==="p"?S.p:S.secs;for(let i=k[0]==="p"?1:1;i<k.length-1;i++)o=o[k[i]];o[k[k.length-1]]=val}
+document.addEventListener("input",e=>{const t=e.target;if(t.dataset.k){setPath(t.dataset.k,t.type==="checkbox"?(t.checked?1:0):t.value);draw()}else if(t.dataset.d){const k=t.dataset.d;S.d[k]=(k==="fs"||k==="gap")?+t.value:t.value;if(k==="fs")$("#vf").textContent=t.value;if(k==="gap")$("#vg").textContent=t.value;draw()}});
+document.addEventListener("click",e=>{const b=e.target.closest("button");if(!b)return;const D=b.dataset;
+if(D.tab){tab=D.tab;drawPane();return}
+if(D.tpl){S.d.tpl=D.tpl;draw();drawPane();return}
+if(D.col){S.d.ac=D.col;draw();drawPane();return}
+if(D.ind){const i=IND[D.ind];Object.assign(S.d,{tpl:i.t,ac:i.ac,ff:i.ff});draw();drawPane();toast("Đã áp dụng thiết kế ngành "+i.n);return}
+if(D.fill){const n=S.p.name,f=fromInd(D.fill);S.p=Object.assign(f.p,{name:n});S.secs=f.secs;draw();toast("Đã nạp nội dung mẫu, hãy sửa lại thành thông tin của bạn");return}
+if(D.x){exp(D.x);return}
+if(D.act){const i=+D.i,j=+D.j,a=D.act,s=S.secs;
+if(a==="up"&&i>0)[s[i-1],s[i]]=[s[i],s[i-1]];
+if(a==="dn"&&i<s.length-1)[s[i+1],s[i]]=[s[i],s[i+1]];
+if(a==="add")s[i].v.push({a:"",b:"",c:"",d:""});
+if(a==="rm")s[i].v.splice(j,1);
+if(a==="en"||a==="vi"){const M={sum:["Tóm tắt","Summary"],exp:["Kinh nghiệm làm việc","Work Experience"],edu:["Học vấn","Education"],sk:["Kỹ năng","Skills"],proj:["Dự án","Projects"],cert:["Chứng chỉ","Certifications"]};s.forEach(x=>M[x.id]&&(x.title=M[x.id][a==="en"?1:0]))}if(a==="imp"){doImport();return}if(a==="phx"){delete S.p.photo;S.p.nophoto=1}if(a==="phs"){S.p.photo=SAMPLE;delete S.p.nophoto}if(a==="jd")JDR=JD.trim()?jdMatch():null;if(a==="ord"){const o=i?["sum","exp","sk","edu","proj","cert"]:["sum","edu","proj","exp","sk","cert"],r=x=>o.indexOf(x.id)<0?99:o.indexOf(x.id);s.sort((x,y)=>r(x)-r(y));if(!i)s.find(x=>x.id==="proj").on=1}if(a==="sec")s.push(mk("x"+Date.now(),"Mục mới","items",1,[{a:"",b:"",c:"",d:""}]));
+draw();drawPane()}});
+/* export */
+function txt(){const{p,secs}=S;let o=[p.name,p.title,[p.email,p.phone,p.addr,p.link].filter(Boolean).join(" | "),""];secs.filter(s=>s.on&&has(s)).forEach(s=>{o.push(s.title.toUpperCase());if(s.type==="items")s.v.filter(i=>i.a||i.b).forEach(i=>{o.push([i.a,i.b,i.c].filter(Boolean).join(" | "));if(i.d)o.push(i.d);o.push("")});else o.push(s.v,"");o.push("")});return o.join("\n").replace(/\n{3,}/g,"\n\n")}
+function htmlDoc(){const css=[...document.styleSheets].flatMap(s=>{try{return[...s.cssRules]}catch(e){return[]}}).filter(r=>r.cssText.startsWith(".cv")||r.cssText.startsWith("@page")||r.cssText.startsWith("@media print")).map(r=>r.cssText).join("\n");return`<!DOCTYPE html><html lang="vi"><head><meta charset="utf-8"><title>CV ${esc(S.p.name)}</title><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;600;700&family=Lora:wght@400;600;700&family=Inter:wght@400;600;700&display=swap"><style>body{margin:0;background:#e5e7eb}.cv{margin:0 auto}@media print{body{background:#fff}}@page{size:A4;margin:0}${css}</style></head><body>${cvHTML()}</body></html>`}
+async function exp(k){const name=slug(S.p.name||"CV")+"_CV";
+if(k==="pdf"){try{document.title=name;window.print();toast("Trong hộp thoại in, chọn “Lưu dưới dạng PDF” và tắt “Đầu trang và chân trang”. Nếu không mở được, tải HTML rồi in từ trình duyệt.")}catch(e){toast("Không mở được hộp thoại in. Hãy tải HTML rồi mở bằng trình duyệt và in ra PDF.")}return}
+let files;try{files=k==="docx"?[name+".docx",await docxBlob()]:{html:[name+".html",htmlDoc()],txt:[name+".txt",txt()],json:[name+".json",JSON.stringify(S)]}[k]}catch(e){toast("Không tạo được file Word, hãy dùng Tải PDF.");return}
+let d=null;try{d=window.claude&&await claude.use("downloads")}catch(e){}
+if(!d){toast("Trình xem này chưa hỗ trợ tải tệp. Hãy dùng nút Tải PDF.");return}
+try{await d.save({filename:files[0],data:files[1]});toast("Đã lưu "+files[0])}catch(e){if(e.code!=="declined")toast("Không lưu được tệp: "+(e.message||e.code))}}
+$("#imp").addEventListener("change",e=>{const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=()=>{try{const o=JSON.parse(r.result);if(!o.p||!o.secs)throw 0;S=o;draw();drawPane();toast("Đã mở dữ liệu CV")}catch(x){toast("Tệp không đúng định dạng dữ liệu CV")}};r.readAsText(f)});
+draw();drawPane();
+</script>
+</body>
+</html>
